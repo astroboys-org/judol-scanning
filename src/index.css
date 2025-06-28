@@ -1,68 +1,235 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap") layer(base);
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@import "tailwindcss";
+@import "./assets/css/react-datepicker.css";
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+    --font-*: initial;
+    --font-outfit: Outfit, sans-serif;
+
+    --breakpoint-*: initial;
+    --breakpoint-2xs: 375px;
+    --breakpoint-xs: 425px;
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+    --breakpoint-3xl: 2000px;
+
+    --animation-delay-100: 100ms;
+    --animation-delay-200: 200ms;
+    --animation-delay-400: 400ms;
+    --animation-delay-600: 600ms;
+    --animation-delay-800: 800ms;
+
+    --file-upload-icon: url("data:image/svg+xml; utf-8, <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='gray' className='size-5'><path stroke-linecap='round' stroke-linejoin='round' d='M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m6.75 12-3-3m0 0-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z' /></svg>");
+    --chevron-down-icon: url("data:image/svg+xml; utf-8, <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='gray' className='size-5'><path stroke-linecap='round' stroke-linejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5' /></svg>");
+
+    --animate-loader-square: loader-square 1s infinite ease-in-out;
+    --animate-loader-circle: loader-circle 1s infinite ease-in-out;
+    --animate-fade-in: fade-in 0.3s ease;
+
+    @keyframes loader-square {
+        0%,
+        80%,
+        100% {
+            opacity: 0.75;
+            box-shadow: 0 0 #076fe5;
+            height: 20px;
+        }
+
+        40% {
+            opacity: 1;
+            box-shadow: 0 -8px #076fe5;
+            height: 24px;
+        }
+    }
+
+    @keyframes loader-circle {
+        0%,
+        80%,
+        100% {
+            opacity: 0.75;
+            transform: translateY(-4px);
+        }
+
+        40% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+
+    button:not(:disabled),
+    [role="button"]:not(:disabled) {
+        cursor: pointer;
+    }
+
+    body {
+        @apply relative font-normal font-outfit z-1 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-200;
+    }
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+@utility menu-item {
+    @apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm transition-all duration-200 ease-in-out;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+@utility menu-item-active {
+    @apply bg-blue-50 text-blue-500 dark:bg-blue-500/[0.12] dark:text-blue-400;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+@utility menu-item-inactive {
+    @apply text-gray-700 hover:bg-gray-100 group-hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+@utility menu-item-icon {
+    @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400;
+}
+
+@utility menu-item-icon-active {
+    @apply text-blue-500 dark:text-blue-400;
+}
+
+@utility menu-item-icon-size {
+    & svg {
+        @apply !size-6;
+    }
+}
+
+@utility menu-item-icon-inactive {
+    @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
+}
+
+@utility menu-item-arrow {
+    @apply relative;
+}
+
+@utility menu-item-arrow-active {
+    @apply rotate-180 text-blue-500 dark:text-blue-400;
+}
+
+@utility menu-item-arrow-inactive {
+    @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
+}
+
+@utility menu-dropdown-item {
+    @apply relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium;
+}
+
+@utility menu-dropdown-item-active {
+    @apply bg-blue-50 text-blue-500 dark:bg-blue-500/[0.12] dark:text-blue-400;
+}
+
+@utility menu-dropdown-item-inactive {
+    @apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
+}
+
+@utility menu-dropdown-badge {
+    @apply block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase text-blue-500 dark:text-blue-400;
+}
+
+@utility menu-dropdown-badge-active {
+    @apply bg-blue-100 dark:bg-blue-500/20;
+}
+
+@utility menu-dropdown-badge-inactive {
+    @apply bg-blue-50 group-hover:bg-blue-100 dark:bg-blue-500/15 dark:group-hover:bg-blue-500/20;
+}
+
+@utility no-scrollbar {
+    /* Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+@utility custom-scrollbar {
+    &::-webkit-scrollbar {
+        @apply size-1.5;
+    }
+
+    &::-webkit-scrollbar-track {
+        @apply rounded-full;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        @apply bg-gray-200 rounded-full dark:bg-gray-700;
+    }
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #344054;
+}
+
+@layer utilities {
+    /* For Remove Date Icon */
+    input[type="date"]::-webkit-inner-spin-button,
+    input[type="time"]::-webkit-inner-spin-button,
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        display: none;
+        -webkit-appearance: none;
+    }
+}
+
+@utility form-input {
+    @apply bg-gray-50 text-sm rounded-lg border shadow-xs appearance-none h-10 w-full px-4 py-2.5 focus:outline-none focus:ring-0
+        dark:bg-gray-900 dark:text-white/90 dark:border-gray-900
+        placeholder:text-gray-400 dark:placeholder:text-white/30
+        focus:bg-white/90 dark:focus:bg-gray-800;
+}
+
+@utility form-input-hover {
+    @apply hover:bg-white/80 dark:hover:bg-gray-700 hover:placeholder:text-gray-500
+}
+
+@utility form-not-allowed {
+    @apply opacity-50 cursor-not-allowed;
+}
+
+@utility form-input-bar {
+    @apply absolute bottom-0 left-0 z-30 w-full h-[2.5px] scale-0 group-has-focus:scale-100 group-has-open:scale-100 transition duration-200 ease-linear origin-left bg-blue-600 dark:bg-blue-400
+}
+
+@utility form-input-hint {
+    @apply mt-1.5 text-xs text-gray-500
+}
+
+@utility modal-footer {
+    @apply flex justify-center sm:justify-end items-center gap-3 border-t dark:border-gray-900 mt-6 pt-2;
+}
+
+@utility animation-delay-* {
+    animation-delay: --value(--animation-delay-*);
+    -webkit-animation-delay: --value(--animation-delay-*) !important;
+}
+
+@utility loader-square {
+    @apply bg-blue-600 dark:bg-blue-400 animate-loader-square w-2.5 h-5;
+}
+
+@utility loader-circle {
+    @apply bg-gray-400 dark:bg-gray-600 rounded-full animate-loader-circle size-2;
 }
