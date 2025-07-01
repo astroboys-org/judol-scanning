@@ -1,32 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
 import { useSidebar } from "../../context/SidebarContext";
-import { ChevronDownIcon, ClipboardDocumentListIcon, EllipsisHorizontalIcon, HomeIcon, InboxStackIcon, ShieldExclamationIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import { ChatBubbleLeftRightIcon, ChevronDownIcon, ComputerDesktopIcon, EllipsisHorizontalIcon, ShieldExclamationIcon } from "@heroicons/react/24/outline";
 import { Transition } from "@headlessui/react";
 
 const navItems = [
     {
-        icon: <HomeIcon className="size-6" />,
-        name: "Home",
-        subItems: [{ name: "Home", path: "/" }],
+        icon: <ChatBubbleLeftRightIcon className="size-6" />,
+        name: "Konsultasi",
+        path: "/ai-chat",
     },
     {
-        name: "Log In",
-        icon: <UserCircleIcon className="size-6" />,
-        path: "/login",
-    },
-    {
-        icon: <ClipboardDocumentListIcon className="size-6" />,
-        name: "Form Components",
-        path: "/form-components",
-    },
-    {
-        name: "Other Components",
-        icon: <InboxStackIcon className="size-6" />,
+        icon: <ComputerDesktopIcon className="size-6" />,
+        name: "Dashboard Kasus",
         subItems: [
-            { name: "Buttons", path: "/button-components" },
-            { name: "Badges", path: "/badge-components" }
-        ],
+            { name: "Grafik Kasus", path: "charts"}
+        ]
     },
     {
         name: "Others",
@@ -57,10 +46,10 @@ export default function GuestSidebar() {
             onMouseLeave={() => setIsHovered(false)}
         >
             <Link to="/" className={`py-4 md:py-8 flex items-center gap-2 ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"}`}>
-                <img src="./images/logo.png" alt="Logo" className={`${isExpanded || isHovered || isMobileOpen ? "h-10 object-contain" : "size-8 w-auto object-cover"} w-auto`} />
+                <img src="/vite.svg" alt="Logo" className={`${isExpanded || isHovered || isMobileOpen ? "h-10 object-contain" : "size-8 w-auto object-cover"} w-auto`} />
                 
                 <h5 className={`dark:text-white/90 font-bold uppercase ${isExpanded || isMobileOpen || isHovered ? 'inline-block' : 'hidden'}`}>
-                    {import.meta.env.VITE_APP_NAME}
+                    ChakrAI
                 </h5>
             </Link>
 

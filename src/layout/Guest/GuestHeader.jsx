@@ -1,16 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useLocation } from "react-router";
 import { ThemeToggleButton } from "../../components/common/ThemeToggleButton";
-import { Bars3CenterLeftIcon, EllipsisVerticalIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3CenterLeftIcon, EllipsisVerticalIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useSidebar } from "../../context/SidebarContext";
-import Button from "../../components/ui/Button";
 
 export default function GuestHeader() {
     const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
     const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
-
-    const navigate = useNavigate();
     const location = useLocation();
 
     const handleToggle = () => {
@@ -43,10 +40,10 @@ export default function GuestHeader() {
     }, []);
 
     return (
-        <header className="sticky top-0 flex w-screen bg-white border-gray-200 z-[99] dark:border-gray-800 dark:bg-gray-900 lg:border-b">
+        <header className="sticky top-0 flex w-full bg-white border-gray-200 z-[99] dark:border-gray-800 dark:bg-gray-900 lg:border-b">
             <div className="flex flex-col items-center justify-between grow lg:flex-row lg:px-6">
                 <div className="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4">
-                    {/* <button onClick={handleToggle} aria-label="Toggle Sidebar"
+                    {location.pathname !== '/' && <button onClick={handleToggle} aria-label="Toggle Sidebar"
                         className="items-center justify-center w-10 h-10 text-gray-500 border-gray-200 rounded-lg z-[99] dark:border-gray-800 dark:text-gray-400 lg:flex lg:h-11 lg:w-11 lg:border"
                     >
                         {isMobileOpen ? (
@@ -54,9 +51,9 @@ export default function GuestHeader() {
                         ) : (
                             <Bars3CenterLeftIcon className="size-6" />
                         )}
-                    </button> */}
+                    </button>}
                     
-                    <div className="flex items-center">
+                    <div className="flex lg:hidden items-center">
                         <Link to="/" className="flex gap-2 flex-nowrap">
                             <img src="/vite.svg" alt="Logo" className="h-8 w-auto object-contain" />
                             <p className="hidden lg:inline-flex text-xl font-medium">ChakrAI</p>

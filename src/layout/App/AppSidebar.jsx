@@ -60,7 +60,7 @@ export default function AppSidebar() {
                 <img src="./images/logo.png" alt="Logo" className={`${isExpanded || isHovered || isMobileOpen ? "h-10 object-contain" : "size-8 w-auto object-cover"} w-auto`} />
                 
                 <h5 className={`dark:text-white/90 font-bold uppercase ${isExpanded || isMobileOpen || isHovered ? 'inline-block' : 'hidden'}`}>
-                    {import.meta.env.VITE_APP_NAME}
+                    ChakrAI
                 </h5>
             </Link>
 
