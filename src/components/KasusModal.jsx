@@ -35,8 +35,12 @@ export default function KasusModal() {
         }
 
         data.forEach(item => {
-            const date = new Date(item.Waktu);
-            const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`;
+            const date = new Date(item.waktu);
+            const monthNames = [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+            const monthYear = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
 
             if (!monthCounts[monthYear]) {
                 monthCounts[monthYear] = 0;
@@ -58,10 +62,10 @@ export default function KasusModal() {
         }
 
         data.forEach(item => {
-            if (!regionCounts[item.Kako]) {
-                regionCounts[item.Kako] = 0;
+            if (!regionCounts[item.kako]) {
+                regionCounts[item.kako] = 0;
             }
-            regionCounts[item.Kako]++;
+            regionCounts[item.kako]++;
         });
 
         return Object.entries(regionCounts).map(([key, value]) => ({

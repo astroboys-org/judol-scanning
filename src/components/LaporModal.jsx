@@ -6,9 +6,10 @@ import InputWrapper from "./form/InputWrapper";
 import InputText from './form/InputText';
 import Select from './form/Select';
 import DatePicker from './form/DatePicker';
+import AreaSelector from './form/AreaSelector';
 import useNotyf from '../hooks/useNotyf';
-import { useState, useEffect } from 'react';
-import { addNewReport, testSupabaseConnection } from '../services/dataService';
+import { useState } from 'react';
+import { addNewReport } from '../services/dataService';
 
 export default function LaporModal({ onReportAdded }) {
     const { isOpen, openModal, closeModal } = useModal();
@@ -24,19 +25,30 @@ export default function LaporModal({ onReportAdded }) {
         waktu: new Date().toISOString().split('T')[0]
     });
 
-    // Test Supabase connection when modal opens
-    useEffect(() => {
-        if (isOpen) {
-            testSupabaseConnection().catch(error => {
-                console.error('Supabase connection test failed:', error);
-                notyf.error('Database connection failed. Please check your configuration.');
-            });
-        }
-    }, [isOpen, notyf]);
+    const [areaData, setAreaData] = useState({
+        selectedProvince: '',
+        selectedRegency: '',
+        selectedDistrict: '',
+        selectedVillage: ''
+    });
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => { return { ...prev, [name]: value } });
+    }
+
+    const handleAreaChange = (type, value) => {
+        setAreaData(prev => ({ ...prev, [type]: value }));
+
+        if (type === 'selectedProvince') {
+            setFormData(prev => ({ ...prev, provinsi: value }));
+        } else if (type === 'selectedRegency') {
+            setFormData(prev => ({ ...prev, kako: value }));
+        } else if (type === 'selectedDistrict') {
+            setFormData(prev => ({ ...prev, kecamatan: value }));
+        } else if (type === 'selectedVillage') {
+            setFormData(prev => ({ ...prev, desa: value }));
+        }
     }
 
     const handleSubmit = async () => {
@@ -59,13 +71,18 @@ export default function LaporModal({ onReportAdded }) {
                 kasus: 'Judi Online',
                 waktu: new Date().toISOString().split('T')[0]
             });
+            setAreaData({
+                selectedProvince: '',
+                selectedRegency: '',
+                selectedDistrict: '',
+                selectedVillage: ''
+            });
             closeModal();
 
             notyf.success('Laporan berhasil disimpan!');
 
             if (onReportAdded) onReportAdded();
         } catch (error) {
-            console.error('Error submitting report:', error);
             notyf.error(`Gagal menyimpan laporan: ${error.message}`);
         } finally {
             setIsLoading(false);
@@ -82,6 +99,12 @@ export default function LaporModal({ onReportAdded }) {
             provinsi: '',
             kasus: 'Judi Online',
             waktu: new Date().toISOString().split('T')[0]
+        });
+        setAreaData({
+            selectedProvince: '',
+            selectedRegency: '',
+            selectedDistrict: '',
+            selectedVillage: ''
         });
     };
 
@@ -116,38 +139,16 @@ export default function LaporModal({ onReportAdded }) {
                         />
                     </InputWrapper>
 
-                    <InputWrapper label="Desa">
-                        <InputText
-                            name="desa"
-                            value={formData.desa}
-                            onChange={handleInputChange}
-                            disabled={isLoading}
-                        />
-                    </InputWrapper>
-
-                    <InputWrapper label="Kecamatan">
-                        <InputText
-                            name="kecamatan"
-                            value={formData.kecamatan}
-                            onChange={handleInputChange}
-                            disabled={isLoading}
-                        />
-                    </InputWrapper>
-
-                    <InputWrapper label="Kabupate/Kota">
-                        <InputText
-                            name="kako"
-                            value={formData.kako}
-                            onChange={handleInputChange}
-                            disabled={isLoading}
-                        />
-                    </InputWrapper>
-
-                    <InputWrapper label="Provinsi">
-                        <InputText
-                            name="provinsi"
-                            value={formData.provinsi}
-                            onChange={handleInputChange}
+                    <InputWrapper label="Lokasi Kejadian">
+                        <AreaSelector
+                            selectedProvince={areaData.selectedProvince}
+                            selectedRegency={areaData.selectedRegency}
+                            selectedDistrict={areaData.selectedDistrict}
+                            selectedVillage={areaData.selectedVillage}
+                            onProvinceChange={(value) => handleAreaChange('selectedProvince', value)}
+                            onRegencyChange={(value) => handleAreaChange('selectedRegency', value)}
+                            onDistrictChange={(value) => handleAreaChange('selectedDistrict', value)}
+                            onVillageChange={(value) => handleAreaChange('selectedVillage', value)}
                             disabled={isLoading}
                         />
                     </InputWrapper>
