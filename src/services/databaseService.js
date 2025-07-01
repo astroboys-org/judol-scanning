@@ -1,52 +1,75 @@
+import { supabase } from '../lib/supabase.js';
+
 // Konfigurasi database
 export const DB_CONFIG = {
-  scraped_data_key: 'chakrai_scraped_data',
-  max_entries: 10000 // Batasi jumlah entri untuk menghindari localStorage penuh
+  table_name: 'scraped_data',
+  max_entries: 10000 // Batasi jumlah entri untuk menghindari database penuh
 };
 
 // Inisialisasi database
-export const initializeDatabase = () => {
-  // Cek apakah database sudah ada
-  const scrapedData = localStorage.getItem(DB_CONFIG.scraped_data_key);
-  if (!scrapedData) {
-    // Inisialisasi database kosong
-    localStorage.setItem(DB_CONFIG.scraped_data_key, JSON.stringify([]));
-    console.log('Database initialized with empty data');
-  } else {
-    console.log('Database already exists');
+export const initializeDatabase = async () => {
+  try {
+    // Cek apakah tabel sudah ada dengan mengambil satu record
+    const { data, error } = await supabase
+      .from(DB_CONFIG.table_name)
+      .select('id')
+      .limit(1);
+
+    if (error && error.code === '42P01') {
+      // Tabel tidak ada, buat tabel baru
+      console.log('Creating scraped_data table...');
+      const { error: createError } = await supabase.rpc('create_scraped_data_table');
+      if (createError) {
+        console.error('Error creating table:', createError);
+      }
+    } else if (error) {
+      console.error('Error checking database:', error);
+    } else {
+      console.log('Database already exists');
+    }
+
+    // Bersihkan data lama jika melebihi batas
+    await cleanupOldData();
+  } catch (error) {
+    console.error('Error initializing database:', error);
   }
-  
-  // Bersihkan data lama jika melebihi batas
-  cleanupOldData();
 };
 
 // Simpan data hasil scraping ke database
 export const saveScrapedData = async (newData) => {
   try {
-    // Ambil data yang sudah ada
-    const existingDataStr = localStorage.getItem(DB_CONFIG.scraped_data_key);
-    const existingData = existingDataStr ? JSON.parse(existingDataStr) : [];
-    
+    // Ambil data yang sudah ada untuk cek duplikasi
+    const { data: existingData, error: fetchError } = await supabase
+      .from(DB_CONFIG.table_name)
+      .select('url');
+
+    if (fetchError) {
+      console.error('Error fetching existing data:', fetchError);
+      return [];
+    }
+
     // Filter data baru yang belum ada di database (berdasarkan URL)
     const existingUrls = new Set(existingData.map(item => item.url));
     const filteredNewData = newData.filter(item => !existingUrls.has(item.url));
-    
+
     if (filteredNewData.length === 0) {
       console.log('Tidak ada data baru untuk disimpan');
       return [];
     }
-    
-    // Gabungkan data baru dengan yang sudah ada
-    const combinedData = [...filteredNewData, ...existingData];
-    
-    // Batasi jumlah data jika melebihi batas
-    const trimmedData = combinedData.slice(0, DB_CONFIG.max_entries);
-    
-    // Simpan kembali ke localStorage
-    localStorage.setItem(DB_CONFIG.scraped_data_key, JSON.stringify(trimmedData));
-    
-    console.log(`Berhasil menyimpan ${filteredNewData.length} data baru`);
-    return filteredNewData;
+
+    // Simpan data baru ke database
+    const { data: savedData, error: insertError } = await supabase
+      .from(DB_CONFIG.table_name)
+      .insert(filteredNewData)
+      .select();
+
+    if (insertError) {
+      console.error('Error saving data:', insertError);
+      return [];
+    }
+
+    console.log(`Berhasil menyimpan ${savedData.length} data baru`);
+    return savedData;
   } catch (error) {
     console.error('Error saat menyimpan data scraping:', error);
     return [];
@@ -54,10 +77,19 @@ export const saveScrapedData = async (newData) => {
 };
 
 // Ambil semua data hasil scraping
-export const getAllScrapedData = () => {
+export const getAllScrapedData = async () => {
   try {
-    const dataStr = localStorage.getItem(DB_CONFIG.scraped_data_key);
-    return dataStr ? JSON.parse(dataStr) : [];
+    const { data, error } = await supabase
+      .from(DB_CONFIG.table_name)
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching data:', error);
+      return [];
+    }
+
+    return data || [];
   } catch (error) {
     console.error('Error saat mengambil data scraping:', error);
     return [];
@@ -65,24 +97,28 @@ export const getAllScrapedData = () => {
 };
 
 // Cari data berdasarkan kata kunci
-export const searchScrapedData = (keyword, category = null) => {
+export const searchScrapedData = async (keyword, category = null) => {
   try {
-    const allData = getAllScrapedData();
-    const keywordLower = keyword.toLowerCase();
-    
-    return allData.filter(item => {
-      // Filter berdasarkan kategori jika disediakan
-      if (category && item.category !== category) {
-        return false;
-      }
-      
-      // Cari di judul, deskripsi, dan lokasi
-      return (
-        item.title.toLowerCase().includes(keywordLower) ||
-        item.description.toLowerCase().includes(keywordLower) ||
-        item.location.toLowerCase().includes(keywordLower)
-      );
-    });
+    let query = supabase
+      .from(DB_CONFIG.table_name)
+      .select('*');
+
+    // Filter berdasarkan kategori jika disediakan
+    if (category) {
+      query = query.eq('category', category);
+    }
+
+    // Cari di judul, deskripsi, dan lokasi
+    query = query.or(`title.ilike.%${keyword}%,description.ilike.%${keyword}%,location.ilike.%${keyword}%`);
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error searching data:', error);
+      return [];
+    }
+
+    return data || [];
   } catch (error) {
     console.error('Error saat mencari data:', error);
     return [];
@@ -90,10 +126,20 @@ export const searchScrapedData = (keyword, category = null) => {
 };
 
 // Ambil data berdasarkan kategori
-export const getDataByCategory = (category) => {
+export const getDataByCategory = async (category) => {
   try {
-    const allData = getAllScrapedData();
-    return allData.filter(item => item.category === category);
+    const { data, error } = await supabase
+      .from(DB_CONFIG.table_name)
+      .select('*')
+      .eq('category', category)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching data by category:', error);
+      return [];
+    }
+
+    return data || [];
   } catch (error) {
     console.error('Error saat mengambil data berdasarkan kategori:', error);
     return [];
@@ -101,13 +147,32 @@ export const getDataByCategory = (category) => {
 };
 
 // Bersihkan data lama jika melebihi batas
-const cleanupOldData = () => {
+const cleanupOldData = async () => {
   try {
-    const allData = getAllScrapedData();
-    if (allData.length > DB_CONFIG.max_entries) {
-      const trimmedData = allData.slice(0, DB_CONFIG.max_entries);
-      localStorage.setItem(DB_CONFIG.scraped_data_key, JSON.stringify(trimmedData));
-      console.log(`Membersihkan data lama. Menyimpan ${trimmedData.length} dari ${allData.length} data`);
+    const { data: allData, error } = await supabase
+      .from(DB_CONFIG.table_name)
+      .select('id')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching data for cleanup:', error);
+      return;
+    }
+
+    if (allData && allData.length > DB_CONFIG.max_entries) {
+      // Ambil ID data yang perlu dihapus (data lama)
+      const idsToDelete = allData.slice(DB_CONFIG.max_entries).map(item => item.id);
+
+      const { error: deleteError } = await supabase
+        .from(DB_CONFIG.table_name)
+        .delete()
+        .in('id', idsToDelete);
+
+      if (deleteError) {
+        console.error('Error deleting old data:', deleteError);
+      } else {
+        console.log(`Membersihkan data lama. Menghapus ${idsToDelete.length} data`);
+      }
     }
   } catch (error) {
     console.error('Error saat membersihkan data lama:', error);
@@ -115,28 +180,28 @@ const cleanupOldData = () => {
 };
 
 // Ekspor data ke JSON (untuk backup)
-export const exportDatabaseToJSON = () => {
+export const exportDatabaseToJSON = async () => {
   try {
-    const allData = getAllScrapedData();
+    const allData = await getAllScrapedData();
     const dataStr = JSON.stringify(allData, null, 2);
-    
+
     // Buat blob dan download link
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
+
     // Buat link download dan klik secara otomatis
     const a = document.createElement('a');
     a.href = url;
     a.download = `chakrai_database_export_${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
     a.click();
-    
+
     // Cleanup
     setTimeout(() => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }, 0);
-    
+
     return true;
   } catch (error) {
     console.error('Error saat mengekspor database:', error);
@@ -145,16 +210,25 @@ export const exportDatabaseToJSON = () => {
 };
 
 // Import data dari JSON (untuk restore)
-export const importDatabaseFromJSON = (jsonData) => {
+export const importDatabaseFromJSON = async (jsonData) => {
   try {
     const parsedData = JSON.parse(jsonData);
     if (!Array.isArray(parsedData)) {
       throw new Error('Format data tidak valid');
     }
-    
-    // Simpan data ke localStorage
-    localStorage.setItem(DB_CONFIG.scraped_data_key, JSON.stringify(parsedData));
-    console.log(`Berhasil mengimpor ${parsedData.length} data`);
+
+    // Simpan data ke database
+    const { data, error } = await supabase
+      .from(DB_CONFIG.table_name)
+      .insert(parsedData)
+      .select();
+
+    if (error) {
+      console.error('Error importing data:', error);
+      return false;
+    }
+
+    console.log(`Berhasil mengimpor ${data.length} data`);
     return true;
   } catch (error) {
     console.error('Error saat mengimpor database:', error);

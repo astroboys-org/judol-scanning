@@ -11,11 +11,12 @@ import { analyzeLocation } from "../services/geminiService";
 import ScrapingSidebar from "../components/ScrapingSidebar";
 import KasusModal from "../components/KasusModal";
 import LaporModal from "../components/LaporModal";
+import ReactMarkdown from "react-markdown";
 
 export default function AIChat() {
     const [messages, setMessages] = useState([{
         sender: 'system',
-        text: 'Selamat datang di ChakrAI! 👋 Di mana lokasi Anda saat ini? (sebutkan nama desa, kecamatan, kabupaten/kota, dan provinsi Anda)',
+        text: '**Selamat datang di ChakrAI!** 👋\n\nDi mana lokasi Anda saat ini? (sebutkan nama desa, kecamatan, kabupaten/kota, dan provinsi Anda)',
         timestamp: new Date(),
     }]);
     const [inputText, setInputText] = useState('');
@@ -45,7 +46,7 @@ export default function AIChat() {
         try {
             if (chatState === 'awal') {
                 // Cek lokasi di database lokal
-                const locationResult = findSimilarLocation(inputText);
+                const locationResult = await findSimilarLocation(inputText);
 
                 if (locationResult.found) {
                     // Jika lokasi ditemukan di database
@@ -53,9 +54,9 @@ export default function AIChat() {
                     const caseType = recentCase.Kasus;
 
                     if (caseType === 'Pinjaman Online Ilegal') {
-                        addMessage('system', `<strong>Peringatan Keamanan</strong><br>Hai, kami mendeteksi bahwa di sekitar ${locationResult.location} terdeteksi aktivitas/kejadian <strong>Pinjaman Online Ilegal</strong>.<br><br>Berhati-hatilah terhadap penawaran pinjaman cepat melalui aplikasi tidak resmi.<br><br>💡 <strong>Tips:</strong> Jangan pernah mengirim KTP/foto diri ke pihak tidak dikenal`);
+                        addMessage('system', `**Peringatan Keamanan**\n\nHai, kami mendeteksi bahwa di sekitar **${locationResult.location}** terdeteksi aktivitas/kejadian **Pinjaman Online Ilegal**.\n\nBerhati-hatilah terhadap penawaran pinjaman cepat melalui aplikasi tidak resmi.\n\n💡 **Tips:** Jangan pernah mengirim KTP/foto diri ke pihak tidak dikenal`);
                     } else {
-                        addMessage('system', `<strong>Peringatan Keamanan</strong><br>Hai, kami mendeteksi bahwa di sekitar ${locationResult.location} saat ini, aktivitas <strong>judi online</strong> cukup rawan terjadi.<br><br>Hati-hati dengan ajakan yang menjanjikan uang cepat. Hindari tautan mencurigakan dan catat pengeluaran harian.<br><br>💡 <strong>Tips:</strong> Jangan sembarangan klik tautan judi, slot, atau mengandung kata 'gacor'`);
+                        addMessage('system', `**Peringatan Keamanan**\n\nHai, kami mendeteksi bahwa di sekitar **${locationResult.location}** saat ini, aktivitas **judi online** cukup rawan terjadi.\n\nHati-hati dengan ajakan yang menjanjikan uang cepat. Hindari tautan mencurigakan dan catat pengeluaran harian.\n\n💡 **Tips:** Jangan sembarangan klik tautan judi, slot, atau mengandung kata 'gacor'`);
                     }
                 } else {
                     // Jika lokasi tidak ditemukan, gunakan Gemini AI untuk analisis
@@ -69,18 +70,18 @@ export default function AIChat() {
                     addMessage('system', 'Mau tips terkait keuangan atau lainnya?');
                     setChatState('konsultasi');
                 } else if (lowerInput.includes('tidak') || lowerInput.includes('tdk') || lowerInput.includes('gak') || lowerInput.includes('gk')) {
-                    addMessage('system', 'Terima kasih telah menggunakan aplikasi ChakrAI. Semoga informasi yang diberikan bermanfaat! 🙏');
+                    addMessage('system', '**Terima kasih** telah menggunakan aplikasi ChakrAI. Semoga informasi yang diberikan bermanfaat! 🙏');
                     setChatState('selesai');
                 } else {
                     addMessage('system', 'Maaf, apa ada yang bisa dibantu lagi?');
                 }
             } else if (chatState === 'konsultasi') {
                 if (inputText.toLowerCase().includes('keuangan')) {
-                    addMessage('system', '<em>Sedang menyiapkan tips keuangan...</em>');
+                    addMessage('system', '*Sedang menyiapkan tips keuangan...*');
                     const financialAdvice = await getFinancialAdvice();
                     addMessage('system', financialAdvice);
                 } else if (inputText.toLowerCase().includes('lain')) {
-                    addMessage('system', 'Maaf, aplikasi ini hanya mendeteksi risiko Judi Online dan Pinjaman Online Ilegal di sekitar Anda serta Literasi Keuangan');
+                    addMessage('system', 'Maaf, aplikasi ini hanya mendeteksi risiko **Judi Online** dan **Pinjaman Online Ilegal** di sekitar Anda serta **Literasi Keuangan**');
                 } else {
                     addMessage('system', 'Ada yang bisa dibantu lagi?');
                 }
@@ -115,13 +116,13 @@ export default function AIChat() {
     };
 
     return (
-        <div className="relative flex justify-center items-start gap-8 min-h-screen overflow-hidden">
+        <div className="relative flex justify-center items-start gap-8 h-screen overflow-hidden max-h-screen">
             {sidebarOpen && <div
                 className="fixed inset-0 z-40 bg-gray-900/50 lg:hidden"
                 onClick={() => setSidebarOpen(false)}
             />}
 
-            <div className={`grow max-w-7xl ${sidebarOpen ? 'lg:mr-96' : 'lg:mr-0'} min-h-[120vh] pr-4`}>
+            <div className={`grow max-w-7xl ${sidebarOpen ? 'lg:mr-96' : 'lg:mr-0'} h-full pr-4`}>
                 <div className="flex flex-col gap-4">
                     <div className="flex justify-between items-center flex-wrap gap-2 w-full">
                         <h2 className="text-2xl font-semibold">Chat dengan ChakrAI</h2>
@@ -131,13 +132,14 @@ export default function AIChat() {
                     </div>
 
                     <Card className="w-full">
-                        <div ref={chatBoxRef} className="flex flex-col gap-3 w-full h-[70vh] lg:h-[80vh] max-h-[80vh] overflow-y-auto custom-scrollbar scroll-smooth pb-4 pr-2">
+                        <div ref={chatBoxRef} className="flex flex-col gap-3 w-full h-[50vh] lg:h-[60vh] max-h-[60vh] overflow-y-auto custom-scrollbar scroll-smooth pb-4 pr-2">
                             {messages.map((msg, index) => (
                                 <div key={index} className={`flex flex-col max-w-4/5 animate-fade-in ${msg.sender === 'user' ? 'self-end' : 'self-start'}`}>
                                     <div className={`${msg.sender === 'user' ? 'bg-blue-600 dark:bg-blue-400 text-white dark:text-gray-800 rounded-bl-lg' : 'bg-gray-100 dark:bg-gray-800 border dark:border-gray-900 rounded-br-lg'}
                                         rounded-t-lg shadow-sm px-4 py-2`}
-                                        dangerouslySetInnerHTML={{ __html: msg.text }}
-                                    />
+                                    >
+                                        {msg.sender === 'user' ? msg.text : <ReactMarkdown>{msg.text}</ReactMarkdown>}
+                                    </div>
                                     <div className={`text-sm text-gray-300 dark:text-white/80 mt-1 ${msg.sender === 'user' ? 'self-end' : 'self-start'}`}>
                                         {formatTimestamp(msg.timestamp)}
                                     </div>

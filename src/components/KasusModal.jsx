@@ -10,7 +10,17 @@ export default function KasusModal() {
     const [data, setData] = useState([]);
 
     useEffect(() => {
-        setData(getAllData());
+        const fetchData = async () => {
+            try {
+                const result = await getAllData();
+                setData(result || []);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setData([]);
+            }
+        };
+
+        fetchData();
 
         return () => {
             setData([]);
@@ -19,6 +29,10 @@ export default function KasusModal() {
 
     const getCasesByMonth = () => {
         const monthCounts = {};
+
+        if (!Array.isArray(data)) {
+            return [];
+        }
 
         data.forEach(item => {
             const date = new Date(item.Waktu);
@@ -38,6 +52,10 @@ export default function KasusModal() {
 
     const getCasesByRegion = () => {
         const regionCounts = {};
+
+        if (!Array.isArray(data)) {
+            return [];
+        }
 
         data.forEach(item => {
             if (!regionCounts[item.Kako]) {
@@ -66,20 +84,23 @@ export default function KasusModal() {
                         <div className="flex flex-col gap-2 items-start text-sm h-80 overflow-y-auto no-scrollbar">
                             {getCasesByMonth().map((item, index) => (
                                 <div key={index} className="border dark:border-gray-800 rounded-sm w-full p-2">
-                                    <div className="flex flex-wrap gap-1"></div>
-                                    <div className="">{item.month}</div>
+                                    <div className="flex justify-between items-center">
+                                        <span>{item.month}</span>
+                                        <span className="font-semibold">{item.count}</span>
+                                    </div>
                                 </div>
                             ))}
                         </div>
                     </div>
                     <div className="flex flex-col gap-4 bg-gray-50 dark:bg-white/20 rounded-lg shadow-md p-4">
-                        <h3 className="text-xl font-semibold border-b dark:border-gray-900 pb-2">Jumlah Kejadian per Bulan</h3>
+                        <h3 className="text-xl font-semibold border-b dark:border-gray-900 pb-2">Jumlah Kejadian per Region</h3>
                         <div className="flex flex-col gap-2 items-start text-sm h-80 overflow-y-auto no-scrollbar">
                             {getCasesByRegion().map((item, index) => (
                                 <div key={index} className="border dark:border-gray-800 rounded-sm w-full p-2">
-                                    <div className="">{item.region}</div>
-                                    <div className="flex flex-wrap gap-1"></div>
-                                    <div className="">{item.month}</div>
+                                    <div className="flex justify-between items-center">
+                                        <span>{item.region}</span>
+                                        <span className="font-semibold">{item.count}</span>
+                                    </div>
                                 </div>
                             ))}
                         </div>

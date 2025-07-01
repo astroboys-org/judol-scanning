@@ -12,7 +12,7 @@ function LayoutContent() {
     const { isPageLoading } = usePageLoader();
 
     return (
-        <div className="min-h-screen xl:flex">
+        <div className="h-screen xl:flex">
             <div>
                 <AppSidebar />
                 <Backdrop />
@@ -39,6 +39,6 @@ export default function AppLayout() {
             ? <SidebarProvider>
                 <LayoutContent />
             </SidebarProvider>
-            : <Navigate to="/login" state={{from: location}} replace />
+            : <Navigate to="/login" state={{ from: location }} replace />
     );
 };

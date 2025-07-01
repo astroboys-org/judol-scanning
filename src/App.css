@@ -20,16 +20,20 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  overflow-x: hidden; /* Mencegah scroll horizontal */
+  overflow-x: hidden;
+  /* Mencegah scroll horizontal */
 }
 
 .app-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  width: 100vw; /* Memastikan lebar 100% dari viewport */
-  max-width: 100%; /* Mencegah overflow */
-  overflow-x: hidden; /* Mencegah scroll horizontal */
+  width: 100vw;
+  /* Memastikan lebar 100% dari viewport */
+  max-width: 100%;
+  /* Mencegah overflow */
+  overflow-x: hidden;
+  /* Mencegah scroll horizontal */
 }
 
 /* Header Styles */
@@ -74,11 +78,11 @@ body {
   .main-container {
     padding: 0.5rem;
   }
-  
+
   .chat-interface {
     height: calc(100vh - 120px);
   }
-  
+
   .action-buttons {
     flex-direction: column;
     gap: 0.5rem;
@@ -89,24 +93,25 @@ body {
   .app-header {
     padding: 0.5rem;
   }
-  
+
   .app-logo h1 {
     font-size: 1.25rem;
   }
-  
+
   .app-logo img {
     height: 30px;
   }
-  
+
   .chat-message {
     max-width: 90%;
   }
-  
+
   .chat-input-container {
     flex-direction: column;
     gap: 0.5rem;
   }
 }
+
 .app-logo {
   display: flex;
   align-items: center;
@@ -257,6 +262,99 @@ body {
   padding: 0.5rem;
 }
 
+/* Markdown Styles for Chat */
+.chat-system .react-markdown {
+  line-height: 1.6;
+}
+
+.chat-system .react-markdown h1,
+.chat-system .react-markdown h2,
+.chat-system .react-markdown h3,
+.chat-system .react-markdown h4,
+.chat-system .react-markdown h5,
+.chat-system .react-markdown h6 {
+  margin: 0.5rem 0;
+  font-weight: 600;
+  color: inherit;
+}
+
+.chat-system .react-markdown h1 {
+  font-size: 1.25rem;
+}
+
+.chat-system .react-markdown h2 {
+  font-size: 1.125rem;
+}
+
+.chat-system .react-markdown h3 {
+  font-size: 1rem;
+}
+
+.chat-system .react-markdown p {
+  margin: 0.5rem 0;
+}
+
+.chat-system .react-markdown ul,
+.chat-system .react-markdown ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.chat-system .react-markdown li {
+  margin: 0.25rem 0;
+}
+
+.chat-system .react-markdown strong,
+.chat-system .react-markdown b {
+  font-weight: 800;
+  color: #1a202c;
+  /* much darker for contrast, adjust as needed */
+  letter-spacing: 0.01em;
+}
+
+.chat-system .react-markdown em,
+.chat-system .react-markdown i {
+  font-style: italic;
+}
+
+.chat-system .react-markdown code {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-size: 0.875em;
+}
+
+.chat-system .react-markdown pre {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+}
+
+.chat-system .react-markdown pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.chat-system .react-markdown blockquote {
+  border-left: 3px solid var(--primary-color);
+  padding-left: 1rem;
+  margin: 0.5rem 0;
+  font-style: italic;
+  color: var(--light-text);
+}
+
+.chat-system .react-markdown a {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.chat-system .react-markdown a:hover {
+  text-decoration: none;
+}
+
 .typing-indicator span {
   height: 8px;
   width: 8px;
@@ -275,17 +373,28 @@ body {
 }
 
 @keyframes bounce {
-  0%, 60%, 100% {
+
+  0%,
+  60%,
+  100% {
     transform: translateY(0);
   }
+
   30% {
     transform: translateY(-5px);
   }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Chat Input */
@@ -404,8 +513,15 @@ body {
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-header {
@@ -532,13 +648,25 @@ body {
 }
 
 @keyframes slideInRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 /* Sidebar Layout */
@@ -552,7 +680,8 @@ body {
 
 .content-area {
   flex: 1;
-  min-width: 0; /* Penting untuk mencegah overflow */
+  min-width: 0;
+  /* Penting untuk mencegah overflow */
   display: flex;
   flex-direction: column;
 }
@@ -770,7 +899,7 @@ body {
   .main-container.with-sidebar {
     flex-direction: column;
   }
-  
+
   .sidebar-container {
     width: 100%;
     height: auto;
@@ -783,20 +912,20 @@ body {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .sidebar-actions {
     flex-direction: column;
   }
-  
+
   .search-filter {
     flex-direction: column;
   }
-  
+
   .import-container {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .sidebar-file-input {
     width: 100%;
   }

@@ -8,6 +8,7 @@
 @theme {
     --font-*: initial;
     --font-outfit: Outfit, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
 
     --breakpoint-*: initial;
     --breakpoint-2xs: 375px;
@@ -33,6 +34,7 @@
     --animate-fade-in: fade-in 0.3s ease;
 
     @keyframes loader-square {
+
         0%,
         80%,
         100% {
@@ -49,6 +51,7 @@
     }
 
     @keyframes loader-circle {
+
         0%,
         80%,
         100% {
@@ -63,12 +66,20 @@
     }
 
     @keyframes fade-in {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 }
 
 @layer base {
+
     *,
     ::after,
     ::before,
@@ -154,6 +165,7 @@
 }
 
 @utility no-scrollbar {
+
     /* Chrome, Safari and Opera */
     &::-webkit-scrollbar {
         display: none;
@@ -184,6 +196,7 @@
 }
 
 @layer utilities {
+
     /* For Remove Date Icon */
     input[type="date"]::-webkit-inner-spin-button,
     input[type="time"]::-webkit-inner-spin-button,
@@ -195,10 +208,7 @@
 }
 
 @utility form-input {
-    @apply bg-gray-50 text-sm rounded-lg border shadow-xs appearance-none h-10 w-full px-4 py-2.5 focus:outline-none focus:ring-0
-        dark:bg-gray-900 dark:text-white/90 dark:border-gray-900
-        placeholder:text-gray-400 dark:placeholder:text-white/30
-        focus:bg-white/90 dark:focus:bg-gray-800;
+    @apply bg-gray-50 text-sm rounded-lg border shadow-xs appearance-none h-10 w-full px-4 py-2.5 focus:outline-none focus:ring-0 dark:bg-gray-900 dark:text-white/90 dark:border-gray-900 placeholder:text-gray-400 dark:placeholder:text-white/30 focus:bg-white/90 dark:focus:bg-gray-800;
 }
 
 @utility form-input-hover {
@@ -232,4 +242,66 @@
 
 @utility loader-circle {
     @apply bg-gray-400 dark:bg-gray-600 rounded-full animate-loader-circle size-2;
+}
+
+/* Markdown Styles for Chat Messages */
+.react-markdown {
+    @apply text-sm leading-relaxed;
+}
+
+.react-markdown p {
+    @apply mb-2 last:mb-0;
+}
+
+.react-markdown strong,
+.react-markdown b {
+    @apply font-bold text-gray-900 dark:text-white;
+}
+
+.react-markdown em,
+.react-markdown i {
+    @apply italic;
+}
+
+.react-markdown code {
+    @apply bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs font-mono;
+}
+
+.react-markdown pre {
+    @apply bg-gray-100 dark:bg-gray-800 p-3 rounded-lg overflow-x-auto my-2;
+}
+
+.react-markdown pre code {
+    @apply bg-transparent p-0;
+}
+
+.react-markdown ul,
+.react-markdown ol {
+    @apply pl-5 mb-2;
+}
+
+.react-markdown li {
+    @apply mb-1;
+}
+
+.react-markdown blockquote {
+    @apply border-l-4 border-blue-500 dark:border-blue-400 pl-4 italic text-gray-600 dark:text-gray-400 my-2;
+}
+
+.react-markdown a {
+    @apply text-blue-600 dark:text-blue-400 underline hover:no-underline;
+}
+
+/* Dark mode adjustments for system messages */
+.dark .react-markdown strong,
+.dark .react-markdown b {
+    @apply text-white;
+}
+
+.dark .react-markdown code {
+    @apply bg-gray-700 text-gray-200;
+}
+
+.dark .react-markdown pre {
+    @apply bg-gray-800;
 }

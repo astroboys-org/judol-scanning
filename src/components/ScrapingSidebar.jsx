@@ -35,19 +35,19 @@ export default function ScrapingSidebar({ isOpen, setIsOpen, onDataRefresh }) {
         filterData();
     }, [searchTerm, selectedCategory, scrapedData]);
 
-    const loadData = () => {
-        const data = getAllScrapedData();
+    const loadData = async () => {
+        const data = await getAllScrapedData();
         setScrapedData(data);
         setFilteredData(data);
     };
 
-    const filterData = () => {
+    const filterData = async () => {
         let result = [];
 
         if (searchTerm) {
-            result = searchScrapedData(searchTerm, selectedCategory !== 'all' ? selectedCategory : null);
+            result = await searchScrapedData(searchTerm, selectedCategory !== 'all' ? selectedCategory : null);
         } else if (selectedCategory !== 'all') {
-            result = getDataByCategory(selectedCategory);
+            result = await getDataByCategory(selectedCategory);
         } else {
             result = [...scrapedData];
         }
@@ -68,8 +68,8 @@ export default function ScrapingSidebar({ isOpen, setIsOpen, onDataRefresh }) {
         }
     };
 
-    const handleExport = () => {
-        const success = exportDatabaseToJSON();
+    const handleExport = async () => {
+        const success = await exportDatabaseToJSON();
         if (success) {
             notyf.success('Database berhasil diekspor');
         } else {
@@ -88,12 +88,12 @@ export default function ScrapingSidebar({ isOpen, setIsOpen, onDataRefresh }) {
         }
 
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
             try {
-                const success = importDatabaseFromJSON(e.target.result);
+                const success = await importDatabaseFromJSON(e.target.result);
                 if (success) {
                     notyf.success('Database berhasil diimpor');
-                    loadData();
+                    await loadData();
                     if (onDataRefresh) onDataRefresh();
                 } else {
                     notyf.error('Gagal mengimpor database');
@@ -114,7 +114,7 @@ export default function ScrapingSidebar({ isOpen, setIsOpen, onDataRefresh }) {
             await startScraping();
 
             // Ambil data hasil scraping
-            const scrapedData = getAllScrapedData();
+            const scrapedData = await getAllScrapedData();
 
             // Jika ada data yang berhasil di-scrape
             if (scrapedData.length > 0) {
@@ -147,7 +147,7 @@ export default function ScrapingSidebar({ isOpen, setIsOpen, onDataRefresh }) {
                     });
 
                     // Simpan data yang sudah diperbarui
-                    localStorage.setItem(DB_CONFIG.scraped_data_key, JSON.stringify(updatedData));
+                    await saveScrapedData(updatedData);
                 }
             }
 
