@@ -12,7 +12,7 @@ function LayoutContent() {
     const location = useLocation();
 
     return (
-        <div className="min-h-screen xl:flex">
+        <div className="min-h-screen">
             {location.pathname !== "/" && <div>
                 <GuestSidebar />
                 <Backdrop />

@@ -14,7 +14,7 @@ const navItems = [
         icon: <ComputerDesktopIcon className="size-6" />,
         name: "Dashboard Kasus",
         subItems: [
-            { name: "Grafik Kasus", path: "charts"}
+            { name: "Grafik Kasus", path: "/charts"}
         ]
     },
     {
