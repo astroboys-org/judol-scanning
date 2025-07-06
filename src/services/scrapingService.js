@@ -5,8 +5,8 @@ import axios from 'axios';
 // Konfigurasi untuk scraping
 const SCRAPING_CONFIG = {
   interval: 3600000, // Interval scraping dalam milidetik (1 jam)
-  apiBaseUrl: 'http://localhost:3001/api', // URL API backend
-  corsProxy: 'http://localhost:3001/proxy?url=', // CORS proxy
+  apiBaseUrl: import.meta.env.VITE_API_URL, // URL API backend
+  corsProxy: import.meta.env.VITE_PROXY_URL, // CORS proxy
   sources: [
     {
       name: 'Kominfo Pemblokiran',

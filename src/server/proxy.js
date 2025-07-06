@@ -25,7 +25,7 @@ app.get('/proxy', async (req, res) => {
   }
 });
 
-const PORT = 3001;
+const PORT = import.meta.env.VITE_PROXY_PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Proxy server running on http://localhost:${PORT}`);
 });

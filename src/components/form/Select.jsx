@@ -15,7 +15,7 @@ export default function Select({
                 <option value="" className="text-gray-500 dark:bg-gray-900 dark:text-gray-400" hidden>{placeholder}</option>
 
                 {Object.keys(options).map((key) => (
-                    <option key={key} value={key} className="text-gray-700 dark:bg-gray-900 dark:text-gray-400">
+                    <option key={key} value={key} className="text-gray-700 dark:bg-gray-900 dark:text-gray-400 text-xs md:text-sm lg:text-lg">
                         {options[key]}
                     </option>
                 ))}

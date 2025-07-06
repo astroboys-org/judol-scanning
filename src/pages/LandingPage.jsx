@@ -2,7 +2,7 @@ import { Link } from 'react-router'
 
 export default function LandingPage() {
     return (
-        <div className="flex flex-col justify-center items-center gap-8 h-screen lg:-ml-64 -mt-12">
+        <div className="flex flex-col justify-center items-center gap-8 h-screen -mt-12">
             <div className="flex gap-2 flex-nowrap">
                 <img src="/vite.svg" alt="Logo" className="size-10 mt-3" />
                 <h1 className="text-5xl font-semibold">ChakrAI</h1>

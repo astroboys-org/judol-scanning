@@ -9,6 +9,7 @@ import DatePicker from './form/DatePicker';
 import AreaSelector from './form/AreaSelector';
 import useNotyf from '../hooks/useNotyf';
 import { useState } from 'react';
+import LoaderSquare from './ui/Loader';
 import { addNewReport } from '../services/dataService';
 
 export default function LaporModal({ onReportAdded }) {
@@ -79,11 +80,11 @@ export default function LaporModal({ onReportAdded }) {
             });
             closeModal();
 
-            notyf.success('Laporan berhasil disimpan!');
+            notyf.success('Laporan berhasil disubmit!');
 
             if (onReportAdded) onReportAdded();
         } catch (error) {
-            notyf.error(`Gagal menyimpan laporan: ${error.message}`);
+            notyf.error(`Laporan gagal disubmit: ${error.message}`);
         } finally {
             setIsLoading(false);
         }
@@ -110,7 +111,7 @@ export default function LaporModal({ onReportAdded }) {
 
     return (
         <>
-            <Button onClick={openModal} className="flex justify-center gap-2 w-full">
+            <Button onClick={openModal} className="flex justify-center gap-2">
                 <PlusCircleIcon className="size-5" />
                 Lapor Kejadian Lokal
             </Button>
@@ -164,29 +165,13 @@ export default function LaporModal({ onReportAdded }) {
                 </div>
 
                 <ModalFooter>
-                    <Button
-                        color="gray"
-                        onClick={handleCloseModal}
-                        disabled={isLoading}
-                    >
+                    <Button color="gray" onClick={handleCloseModal} disabled={isLoading}>
                         Tutup
                     </Button>
-                    <Button
-                        onClick={handleSubmit}
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <>
-                                <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Menyimpan...
-                            </>
-                        ) : (
-                            'Submit'
-                        )}
-                    </Button>
+                    {!isLoading
+                        ? <Button onClick={handleSubmit}>Submit</Button>
+                        : <LoaderSquare className={!isLoading && 'hidden'} />
+                    }
                 </ModalFooter>
             </Modal>
         </>

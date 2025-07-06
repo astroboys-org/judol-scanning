@@ -54,10 +54,11 @@ export default function AppHeader() {
                             <Bars3CenterLeftIcon className="size-6" />
                         )}
                     </button>
-
-                    <div className="flex lg:hidden items-center lg:gap-2">
-                        <Link to="/">
-                            <img src="./images/logo.png" alt="Logo" className="h-8 w-auto object-contain" />
+                    
+                    <div className="flex lg:hidden items-center">
+                        <Link to="/" className="flex gap-2 flex-nowrap">
+                            <img src="/vite.svg" alt="Logo" className="h-8 w-auto object-contain" />
+                            <p className="hidden lg:inline-flex text-xl font-medium">ChakrAI</p>
                         </Link>
                     </div>
 
@@ -67,7 +68,7 @@ export default function AppHeader() {
                         <EllipsisVerticalIcon className="size-6" />
                     </button>
 
-                    <div className="hidden lg:block">
+                    {/* <div className="hidden lg:block">
                         <form>
                             <div className="relative">
                                 <MagnifyingGlassIcon className="text-gray-400 absolute top-1/2 left-4 -translate-y-1/2 pointer-events-none size-6" />
@@ -83,7 +84,7 @@ export default function AppHeader() {
                                 </button>
                             </div>
                         </form>
-                    </div>
+                    </div> */}
                 </div>
                 <div className={`${isApplicationMenuOpen ? "flex opacity-100" : "hidden opacity-0"} absolute top-0 right-2 lg:relative items-center justify-between gap-4 bg-white dark:bg-gray-700 dark:lg:bg-transparent rounded-2xl lg:rounded-none border border-gray-200 dark:border-gray-800 lg:border-none shadow-md lg:shadow-none w-[90vw] lg:w-full mt-18 lg:mt-0 px-5 py-4 lg:flex lg:opacity-100 lg:justify-end
                     transition transition-discrete duration-100 ease-linear`}>

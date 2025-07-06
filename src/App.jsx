@@ -5,6 +5,7 @@ import GuestLayout from './layout/Guest/GuestLayout'
 import LandingPage from './pages/LandingPage'
 import Error404 from './pages/Error404'
 import AIChat from './pages/AIChat'
+import Charts from './pages/dashboard/Charts'
 
 export default function App() {
     return (
@@ -14,6 +15,7 @@ export default function App() {
                 <Route element={<GuestLayout />}>
                     <Route index path="" element={<LandingPage />} />
                     <Route path="ai-chat" element={<AIChat />} />
+                    <Route path="charts" element={<Charts />} />
                 </Route>
 
                 <Route path="*" element={<Error404 />} />

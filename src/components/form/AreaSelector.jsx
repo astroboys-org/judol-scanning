@@ -181,7 +181,7 @@ export default function AreaSelector({
     }
 
     return (
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col gap-2 w-full pl-4">
             <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Provinsi
