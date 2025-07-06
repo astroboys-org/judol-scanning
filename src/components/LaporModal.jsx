@@ -9,8 +9,8 @@ import DatePicker from './form/DatePicker';
 import AreaSelector from './form/AreaSelector';
 import useNotyf from '../hooks/useNotyf';
 import { useState } from 'react';
-import req, { errorReqHandler } from '../req/req';
 import LoaderSquare from './ui/Loader';
+import { addNewReport } from '../services/dataService';
 
 export default function LaporModal({ onReportAdded }) {
     const { isOpen, openModal, closeModal } = useModal();
@@ -165,11 +165,7 @@ export default function LaporModal({ onReportAdded }) {
                 </div>
 
                 <ModalFooter>
-                    <Button
-                        color="gray"
-                        onClick={handleCloseModal}
-                        disabled={isLoading}
-                    >
+                    <Button color="gray" onClick={handleCloseModal} disabled={isLoading}>
                         Tutup
                     </Button>
                     {!isLoading

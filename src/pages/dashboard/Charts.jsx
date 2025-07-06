@@ -5,6 +5,8 @@ import Chart from "react-apexcharts";
 import { useTheme } from "../../context/ThemeContext";
 import req, { errorReqHandler } from "../../req/req";
 import LaporModal from "../../components/LaporModal";
+import { getAllData } from "../../services/dataService";
+import useNotyf from "../../hooks/useNotyf";
 
 const monthNames = [
     'Januari',
@@ -91,37 +93,38 @@ const piechartOptions = {
 
 export default function Charts() {
     const [data, setData] = useState([]);
+    const notyf = useNotyf();
 
     useEffect(() => {
-        getLaporan();
+        fetchData();
 
         return () => {
             setData([]);
         }
     }, []);
 
-    const getLaporan = async () => {
+    const fetchData = async () => {
         try {
-            const res = await req.get('laporan')
-                .catch((error) => { throw error; });
-
-            if (res.status !== 200)
-                throw new Error(res.data.message);
-
-            setData(res.data.laporan);
+            const result = await getAllData();
+            setData(result || []);
         } catch (error) {
-            errorReqHandler(error);
+            notyf.error('Error fetching data:', error);
+            setData([]);
         }
-    }
+    };
 
     const getCasesByMonth = (caseType = 'all') => {
         const monthCounts = {};
         const yearCounts = [];
 
-        data.forEach(item => {
-            if (caseType !== 'all' && item.Kasus !== caseType) return;
+        if (!Array.isArray(data)) {
+            return [];
+        }
 
-            const date = new Date(item.Waktu);
+        data.forEach(item => {
+            if (caseType !== 'all' && item.kasus !== caseType) return;
+
+            const date = new Date(item.waktu);
             const monthYear = `${date.getMonth() + 1}-${date.getFullYear()}`;
 
             if (!yearCounts.includes(date.getFullYear())) yearCounts.push(date.getFullYear());
@@ -138,7 +141,7 @@ export default function Charts() {
             {data.length > 0 && <BarChart getCasesByMonth={getCasesByMonth} />}
             {data.length > 0 && <PieChart getCasesByMonth={getCasesByMonth} />}
             <div className="flex justify-end items-center gap-2">
-                <LaporModal onReportAdded={getLaporan} />
+                <LaporModal onReportAdded={fetchData} />
             </div>
         </div>
     )
