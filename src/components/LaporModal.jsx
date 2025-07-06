@@ -8,7 +8,7 @@ import Select from './form/Select';
 import DatePicker from './form/DatePicker';
 import useNotyf from '../hooks/useNotyf';
 import { useState } from 'react';
-import { addNewReport } from '../services/dataService';
+import req, { errorReqHandler } from '../req/req';
 
 export default function LaporModal({ onReportAdded }) {
     const { isOpen, openModal, closeModal } = useModal();
@@ -28,31 +28,46 @@ export default function LaporModal({ onReportAdded }) {
         setFormData(prev => { return { ...prev, [name]: value } });
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!formData.Judul || !formData.Desa || !formData.Kecamatan || !formData.Kako || !formData.Provinsi) {
             notyf.error('Semua field harus diisi');
             return;
         }
 
-        addNewReport(formData);
+        try {
+            const res = await req.post('laporan', formData, {
+                    headers: {'Content-Type': 'application/json'},
+                }).catch((error) => {
+                    errorReqHandler(error);
+                });
 
-        setFormData({
-            Judul: '',
-            Desa: '',
-            Kecamatan: '',
-            Kako: '',
-            Provinsi: '',
-            Kasus: 'Judi Online',
-            Waktu: new Date().toISOString().split('T')[0]
-        });
-        closeModal();
+            if (res.status !== 200) {
+                throw new Error(res.data.message);
+            }
 
-        if (onReportAdded) onReportAdded();
+            notyf.success('Berhasil mensubmit laporan!');
+
+            setFormData({
+                Judul: '',
+                Desa: '',
+                Kecamatan: '',
+                Kako: '',
+                Provinsi: '',
+                Kasus: 'Judi Online',
+                Waktu: new Date().toISOString().split('T')[0]
+            });
+            closeModal();
+
+            if (onReportAdded) onReportAdded();
+        } catch (error) {
+            notyf.error(error);
+            console.log(error);
+        }
     }
 
     return (
         <>
-            <Button onClick={openModal} className="flex justify-center gap-2 w-full">
+            <Button onClick={openModal} className="flex justify-center gap-2">
                 <PlusCircleIcon className="size-5" />
                 Lapor Kejadian Lokal
             </Button>

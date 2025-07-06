@@ -9,7 +9,6 @@ import { LoaderCircle } from "../components/ui/Loader";
 import { findSimilarLocation } from "../services/dataService";
 import { analyzeLocation } from "../services/geminiService";
 import ScrapingSidebar from "../components/ScrapingSidebar";
-import KasusModal from "../components/KasusModal";
 import LaporModal from "../components/LaporModal";
 
 export default function AIChat() {
@@ -107,7 +106,7 @@ export default function AIChat() {
 
     useEffect(() => {
         initializeDatabase();
-        startScraping();
+        // startScraping();
     }, []);
 
     const handleDataRefresh = () => {
@@ -163,7 +162,6 @@ export default function AIChat() {
                     </Card>
 
                     <div className="flex justify-stretch gap-4 w-full">
-                        <KasusModal />
                         <LaporModal />
                     </div>
                 </div>
