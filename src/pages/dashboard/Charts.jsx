@@ -3,7 +3,6 @@ import Card from "../../components/ui/Card";
 import Select from "../../components/form/Select";
 import Chart from "react-apexcharts";
 import { useTheme } from "../../context/ThemeContext";
-import req, { errorReqHandler } from "../../req/req";
 import LaporModal from "../../components/LaporModal";
 import { getAllData } from "../../services/dataService";
 import useNotyf from "../../hooks/useNotyf";
@@ -260,7 +259,11 @@ function PieChart({ getCasesByMonth }) {
                     </div>
                 </div>
                 <div className="bg-gray-50 dark:bg-white/10 rounded-lg w-full mt-6">
-                    <Chart type='donut' height={240} options={{...piechartOptions, theme: { mode: theme }}}
+                    <Chart type='donut' height={240} options={{
+                            ...piechartOptions,
+                            theme: { mode: theme },
+                            labels: Object.keys(filteredData).map((key) => key)
+                        }}
                         series={Object.keys(filteredData).map((key) => filteredData[key][`${selectedMonth}-${selectedYear}`] ?? 0)}
                     />
                 </div>
