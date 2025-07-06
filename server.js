@@ -3,7 +3,6 @@ import cors from 'cors';
 import puppeteer from 'puppeteer';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import process from 'process';
 import mongoose from 'mongoose';
 // Import fungsi ekstraksi lokasi
 // Pastikan ini ada di package.json
@@ -257,7 +256,6 @@ app.post('/api/laporan', async (req, res) => {
     }
 })
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-    console.log(`Server berjalan di http://localhost:${PORT}`);
+app.listen(3001, () => {
+    console.log(`Server berjalan di http://localhost:3001`);
 });
