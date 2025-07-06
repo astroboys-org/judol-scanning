@@ -4,8 +4,8 @@ import 'notyf/notyf.min.css';
 export default function useNotyf() {
     const notyf = new Notyf({
         types: [
-            {type: 'info', background: 'gray', icon: false},
-            {type: 'warning', background: 'yellow', icon: false},
+            {type: 'info', background: '#99a1af', icon: false},
+            {type: 'warning', background: '#efb100', icon: false},
         ]
     });
     return notyf;
