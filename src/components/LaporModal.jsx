@@ -6,21 +6,31 @@ import InputWrapper from "./form/InputWrapper";
 import InputText from './form/InputText';
 import Select from './form/Select';
 import DatePicker from './form/DatePicker';
+import AreaSelector from './form/AreaSelector';
 import useNotyf from '../hooks/useNotyf';
 import { useState } from 'react';
 import req, { errorReqHandler } from '../req/req';
+import LoaderSquare from './ui/Loader';
 
 export default function LaporModal({ onReportAdded }) {
     const { isOpen, openModal, closeModal } = useModal();
     const notyf = useNotyf();
+    const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
-        Judul: '',
-        Desa: '',
-        Kecamatan: '',
-        Kako: '',
-        Provinsi: '',
-        Kasus: 'Judi Online',
-        Waktu: new Date().toISOString().split('T')[0]
+        judul: '',
+        desa: '',
+        kecamatan: '',
+        kako: '',
+        provinsi: '',
+        kasus: 'Judi Online',
+        waktu: new Date().toISOString().split('T')[0]
+    });
+
+    const [areaData, setAreaData] = useState({
+        selectedProvince: '',
+        selectedRegency: '',
+        selectedDistrict: '',
+        selectedVillage: ''
     });
 
     const handleInputChange = (e) => {
@@ -28,42 +38,76 @@ export default function LaporModal({ onReportAdded }) {
         setFormData(prev => { return { ...prev, [name]: value } });
     }
 
+    const handleAreaChange = (type, value) => {
+        setAreaData(prev => ({ ...prev, [type]: value }));
+
+        if (type === 'selectedProvince') {
+            setFormData(prev => ({ ...prev, provinsi: value }));
+        } else if (type === 'selectedRegency') {
+            setFormData(prev => ({ ...prev, kako: value }));
+        } else if (type === 'selectedDistrict') {
+            setFormData(prev => ({ ...prev, kecamatan: value }));
+        } else if (type === 'selectedVillage') {
+            setFormData(prev => ({ ...prev, desa: value }));
+        }
+    }
+
     const handleSubmit = async () => {
-        if (!formData.Judul || !formData.Desa || !formData.Kecamatan || !formData.Kako || !formData.Provinsi) {
+        if (!formData.judul || !formData.desa || !formData.kecamatan || !formData.kako || !formData.provinsi) {
             notyf.error('Semua field harus diisi');
             return;
         }
 
+        setIsLoading(true);
+
         try {
-            const res = await req.post('laporan', formData, {
-                    headers: {'Content-Type': 'application/json'},
-                }).catch((error) => {
-                    errorReqHandler(error);
-                });
-
-            if (res.status !== 200) {
-                throw new Error(res.data.message);
-            }
-
-            notyf.success('Berhasil mensubmit laporan!');
+            await addNewReport(formData);
 
             setFormData({
-                Judul: '',
-                Desa: '',
-                Kecamatan: '',
-                Kako: '',
-                Provinsi: '',
-                Kasus: 'Judi Online',
-                Waktu: new Date().toISOString().split('T')[0]
+                judul: '',
+                desa: '',
+                kecamatan: '',
+                kako: '',
+                provinsi: '',
+                kasus: 'Judi Online',
+                waktu: new Date().toISOString().split('T')[0]
+            });
+            setAreaData({
+                selectedProvince: '',
+                selectedRegency: '',
+                selectedDistrict: '',
+                selectedVillage: ''
             });
             closeModal();
 
+            notyf.success('Laporan berhasil disubmit!');
+
             if (onReportAdded) onReportAdded();
         } catch (error) {
-            notyf.error(error);
-            console.log(error);
+            notyf.error(`Laporan gagal disubmit: ${error.message}`);
+        } finally {
+            setIsLoading(false);
         }
     }
+
+    const handleCloseModal = () => {
+        closeModal();
+        setFormData({
+            judul: '',
+            desa: '',
+            kecamatan: '',
+            kako: '',
+            provinsi: '',
+            kasus: 'Judi Online',
+            waktu: new Date().toISOString().split('T')[0]
+        });
+        setAreaData({
+            selectedProvince: '',
+            selectedRegency: '',
+            selectedDistrict: '',
+            selectedVillage: ''
+        });
+    };
 
     return (
         <>
@@ -72,14 +116,23 @@ export default function LaporModal({ onReportAdded }) {
                 Lapor Kejadian Lokal
             </Button>
 
-            <Modal isOpen={isOpen} onClose={closeModal} title="Lapor Kejadian" className="w-[560px]">
+            <Modal isOpen={isOpen} onClose={handleCloseModal} title="Lapor Kejadian" className="w-[560px]">
                 <div className="flex flex-col gap-4">
                     <InputWrapper label="Judul Kasus">
-                        <InputText name="Judul" value={formData.Judul} onChange={handleInputChange} />
+                        <InputText
+                            name="judul"
+                            value={formData.judul}
+                            onChange={handleInputChange}
+                            disabled={isLoading}
+                        />
                     </InputWrapper>
 
                     <InputWrapper label="Jenis Kasus">
-                        <Select name="Kasus" value={formData.Kasus} onChange={handleInputChange}
+                        <Select
+                            name="kasus"
+                            value={formData.kasus}
+                            onChange={handleInputChange}
+                            disabled={isLoading}
                             options={{
                                 'Judi Online': 'Judi Online',
                                 'Pinjaman Online Ilegal': 'Pinjaman Online Ilegal'
@@ -87,30 +140,42 @@ export default function LaporModal({ onReportAdded }) {
                         />
                     </InputWrapper>
 
-                    <InputWrapper label="Desa">
-                        <InputText name="Desa" value={formData.Desa} onChange={handleInputChange} />
-                    </InputWrapper>
-
-                    <InputWrapper label="Kecamatan">
-                        <InputText name="Kecamatan" value={formData.Kecamatan} onChange={handleInputChange} />
-                    </InputWrapper>
-
-                    <InputWrapper label="Kabupate/Kota">
-                        <InputText name="Kako" value={formData.Kako} onChange={handleInputChange} />
-                    </InputWrapper>
-
-                    <InputWrapper label="Provinsi">
-                        <InputText name="Provinsi" value={formData.Provinsi} onChange={handleInputChange} />
+                    <InputWrapper label="Lokasi Kejadian">
+                        <AreaSelector
+                            selectedProvince={areaData.selectedProvince}
+                            selectedRegency={areaData.selectedRegency}
+                            selectedDistrict={areaData.selectedDistrict}
+                            selectedVillage={areaData.selectedVillage}
+                            onProvinceChange={(value) => handleAreaChange('selectedProvince', value)}
+                            onRegencyChange={(value) => handleAreaChange('selectedRegency', value)}
+                            onDistrictChange={(value) => handleAreaChange('selectedDistrict', value)}
+                            onVillageChange={(value) => handleAreaChange('selectedVillage', value)}
+                            disabled={isLoading}
+                        />
                     </InputWrapper>
 
                     <InputWrapper label="Waktu Kejadian">
-                        <DatePicker name="Waktu" value={formData.Waktu} onChange={handleInputChange} />
+                        <DatePicker
+                            name="waktu"
+                            value={formData.waktu}
+                            onChange={handleInputChange}
+                            disabled={isLoading}
+                        />
                     </InputWrapper>
                 </div>
 
                 <ModalFooter>
-                    <Button color="gray" onClick={closeModal}>Tutup</Button>
-                    <Button onClick={handleSubmit}>Submit</Button>
+                    <Button
+                        color="gray"
+                        onClick={handleCloseModal}
+                        disabled={isLoading}
+                    >
+                        Tutup
+                    </Button>
+                    {!isLoading
+                        ? <Button onClick={handleSubmit}>Submit</Button>
+                        : <LoaderSquare className={!isLoading && 'hidden'} />
+                    }
                 </ModalFooter>
             </Modal>
         </>
