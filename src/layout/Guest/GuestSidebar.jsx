@@ -13,17 +13,15 @@ const navItems = [
     {
         icon: <ComputerDesktopIcon className="size-6" />,
         name: "Dashboard Kasus",
-        subItems: [
-            { name: "Grafik Kasus", path: "/charts"}
-        ]
+        path: "/charts"
     },
-    {
-        name: "Others",
-        icon: <ShieldExclamationIcon className="size-6" />,
-        subItems: [
-            { name: "404 Error", path: "/error-404" },
-        ],
-    },
+    // {
+    //     name: "Others",
+    //     icon: <ShieldExclamationIcon className="size-6" />,
+    //     subItems: [
+    //         { name: "404 Error", path: "/error-404" },
+    //     ],
+    // },
 ];
 
 export default function GuestSidebar() {

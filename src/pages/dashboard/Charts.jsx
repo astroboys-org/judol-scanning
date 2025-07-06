@@ -21,46 +21,26 @@ const monthNames = [
     'Desember'
 ];
 
-const options = {
-    chart: {
-        height: 240,
-        toolbar: { show: false },
-        background: 'transparent'
-    },
+const caseTypes = [
+    "Judi Online",
+    "Pinjaman Online Ilegal",
+];
+
+const barchartOptions = {
+    chart: { height: 240, toolbar: { show: false }, background: 'transparent' },
     plotOptions: {
-        bar: {
-            horizontal: false,
-            columnWidth: '40%',
-            borderRadius: 4,
-            borderRadiusApplication: 'end'
-        }
+        bar: { horizontal: false, columnWidth: '40%', borderRadius: 4, borderRadiusApplication: 'end' }
     },
     dataLabels: { enabled: false },
-    stroke: {
-        show: true,
-        width: 2,
-        colors: ['transparent']
-    },
+    stroke: { show: true, width: 2, colors: ['transparent'] },
+    legend: { show: true, position: 'top', horizontalAlign: 'left' },
     xaxis: {
         categories: monthNames.map((value) => value.substring(0,3)),
         axisBorder: { show: false },
         axisTicks: { show: false },
     },
-    legend: {
-        show: true,
-        position: 'top',
-        horizontalAlign: 'left',
-    },
-    yaxis: {
-        title: {
-            text: undefined
-        }
-    },
-    grid: {
-        yaxis: {
-            lines: { show: true }
-        }
-    },
+    yaxis: { title: { text: undefined } },
+    grid: { yaxis: { lines: { show: true } } },
     fill: { opacity: 1 },
     tooltip: {
         custom: ({series, seriesIndex, dataPointIndex, w}) => {
@@ -77,14 +57,40 @@ const options = {
     },
 }
 
-export default function Charts() {
-    const { theme } = useTheme();
+const piechartOptions = {
+    colors: ['#054a91', '#fdc500', '#3e7cb1', '#81a4cd', '#f17300', '#00296b'],
+    chart: { height: 240, toolbar: { show: false }, background: 'transparent' },
+    plotOptions: {
+        pie: {
+            donut: {
+                size: '50%',
+                labels: {
+                    show: true,
+                    total: { show: true, showAlways: true, label: 'Total Kasus', fontSize: '14px', fontWeight: 400, }
+                }
+            },
+            expandOnClick: false,
+        }
+    },
+    dataLabels: { enabled: true, dropShadow: { enabled: false } },
+    legend: {
+        show: true,
+        position: 'right',
+        horizontalAlign: 'center',
+        fontSize: '15px',
+        markers: {strokeWidth: 0.5, offsetX: -4},
+    },
+    stroke: { show: true, width: 2, colors: ['transparent'] },
+    responsive: [{
+        breakpoint: 640,
+        options: {
+            legend: { position: 'bottom', fontSize: '14px' }
+        }
+    }]
+}
 
+export default function Charts() {
     const [data, setData] = useState([]);
-    const [filteredData, setFilteredData] = useState({});
-    const [availableYears, setAvailableYears] = useState([]);
-    const [selectedYear, setSelectedYear] = useState('');
-    const [caseType, setCaseType] = useState('all');
 
     useEffect(() => {
         getLaporan();
@@ -93,14 +99,6 @@ export default function Charts() {
             setData([]);
         }
     }, []);
-
-    useEffect(() => {
-        getCasesByMonth();
-
-        return () => {
-            setFilteredData({});
-        }
-    }, [data, caseType]);
 
     const getLaporan = async () => {
         try {
@@ -111,13 +109,12 @@ export default function Charts() {
                 throw new Error(res.data.message);
 
             setData(res.data.laporan);
-            getCasesByMonth();
         } catch (error) {
             errorReqHandler(error);
         }
     }
 
-    const getCasesByMonth = () => {
+    const getCasesByMonth = (caseType = 'all') => {
         const monthCounts = {};
         const yearCounts = [];
 
@@ -133,44 +130,70 @@ export default function Charts() {
             monthCounts[monthYear]++;
         });
 
-        yearCounts.sort().reverse();
-        setAvailableYears(yearCounts);
-        setSelectedYear(yearCounts[0]);
-
-        setFilteredData(monthCounts);
+        return { yearCounts: yearCounts.sort().reverse(), monthCounts: monthCounts};
     }
 
     return (
         <div className="flex flex-col gap-6 w-full">
-            <Card title="Grafik Batang Kasus Kejadian Judi Online & Pinjaman Online Ilegal">
-                <div className="flex flex-col justify-center items-center">
-                    <div className="flex flex-wrap justify-end items-center gap-2 lg:gap-4 w-full mt-4">
-                        <div className="flex items-center gap-2">
-                            <span className="font-medium text-gray-700 dark:text-gray-400">Jenis Kasus</span>
-                            <div className="flex w-32">
-                                <Select value={caseType} onChange={(e) => setCaseType(e.target.value)}
-                                    options={{
-                                        'all': 'Semua',
-                                        'Judi Online': 'Judi Online',
-                                        'Pinjaman Online Ilegal': 'Pinjaman Online Ilegal',
-                                    }}
-                                />
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className="font-medium text-gray-700 dark:text-gray-400">Tahun</span>
-                            <div className="flex w-32">
-                                <Select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}
-                                    options={availableYears.reduce((a, v) => ({...a, [v]: v}), {})} />
-                            </div>
+            {data.length > 0 && <BarChart getCasesByMonth={getCasesByMonth} />}
+            {data.length > 0 && <PieChart getCasesByMonth={getCasesByMonth} />}
+            <div className="flex justify-end items-center gap-2">
+                <LaporModal onReportAdded={getLaporan} />
+            </div>
+        </div>
+    )
+}
+
+function BarChart({ getCasesByMonth }) {
+    const { theme } = useTheme();
+
+    const [caseType, setCaseType] = useState('all');
+    const [filteredData, setFilteredData] = useState({});
+    const [availableYears, setAvailableYears] = useState([]);
+    const [selectedYear, setSelectedYear] = useState('');
+
+    useEffect(() => {
+        const casesByMonth = getCasesByMonth(caseType);
+        setAvailableYears(casesByMonth.yearCounts);
+        setSelectedYear(casesByMonth.yearCounts[0]);
+        setFilteredData(casesByMonth.monthCounts);
+
+        return () => {
+            setFilteredData({});
+        }
+    }, [caseType]);
+
+    return (
+        <Card title="Grafik Batang Kasus Kejadian">
+            <div className="flex flex-col justify-center items-center">
+                <div className="flex flex-wrap justify-end items-center gap-2 lg:gap-4 w-full mt-4">
+                    <div className="flex items-center gap-2">
+                        <span className="font-medium text-gray-700 dark:text-gray-400">Jenis Kasus</span>
+                        <div className="flex w-32">
+                            <Select value={caseType} onChange={(e) => setCaseType(e.target.value)}
+                                options={{
+                                    'all': 'Semua',
+                                    'Judi Online': 'Judi Online',
+                                    'Pinjaman Online Ilegal': 'Pinjaman Online Ilegal',
+                                }}
+                            />
                         </div>
                     </div>
-                    <div className="bg-gray-50 dark:bg-white/10 rounded-lg w-full mt-6">
-                        <Chart type='bar' height={240}
-                            options={{
-                                ...options,
+                    <div className="flex items-center gap-2">
+                        <span className="font-medium text-gray-700 dark:text-gray-400">Tahun</span>
+                        <div className="flex w-32">
+                            <Select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}
+                                options={availableYears.reduce((a, v) => ({...a, [v]: v}), {})}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="flex w-full max-w-full overflow-x-auto custom-scrollbar">
+                    <div className="bg-gray-50 dark:bg-white/10 rounded-lg min-w-xl w-full mt-6">
+                        <Chart type='bar' height={240} options={{
+                                ...barchartOptions,
                                 colors: [theme === 'light' ? '#155dfc' : '#51a2ff'],
-                                theme: { mode: theme }
+                                theme: { mode: theme },
                             }}
                             series={[{
                                 name: `Kasus ${selectedYear ?? ''}`,
@@ -179,10 +202,66 @@ export default function Charts() {
                         />
                     </div>
                 </div>
-            </Card>
-            <div className="flex justify-end items-center gap-2">
-                <LaporModal onReportAdded={getLaporan} />
             </div>
-        </div>
+        </Card>
+    )
+}
+
+function PieChart({ getCasesByMonth }) {
+    const { theme } = useTheme();
+
+    const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth())+1);
+    const [selectedYear, setSelectedYear] = useState(0);
+    const [availableYears, setAvailableYears] = useState([]);
+    const [filteredData, setFilteredData] = useState({});
+
+    useEffect(() => {
+        caseTypes.forEach((caseType) => {
+            const casesByMonth = getCasesByMonth(caseType);
+            setFilteredData(prev => ({...prev, [caseType]: casesByMonth.monthCounts}));
+
+            const yearCounts = availableYears;
+            casesByMonth.yearCounts.forEach((year) => {
+                if (!yearCounts.includes(year)) yearCounts.push(year);
+            });
+            yearCounts.sort().reverse();
+            setAvailableYears(yearCounts);
+            setSelectedYear(yearCounts[0]);
+        });
+    }, []);
+
+    useEffect(() => {
+        // console.log(Object.keys(filteredData).map((key) => filteredData[key][`${selectedMonth}-${selectedYear}`] ?? 0));
+        // console.log(Object.keys(filteredData).map((key) => key));
+    }, [filteredData]);
+
+    return (
+        <Card title="Grafik Pie Perbandingan Jumlah Kasus Kejadian per Bulan">
+            <div className="flex flex-col justify-center items-center">
+                <div className="flex flex-wrap justify-end items-center gap-2 lg:gap-4 w-full mt-4">
+                    <div className="flex items-center gap-2">
+                        <span className="font-medium text-gray-700 dark:text-gray-400">Jenis Kasus</span>
+                        <div className="flex w-32">
+                            <Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)}
+                                options={monthNames.reduce((a, v, i) => ({...a, [i+1]: v}), {})}
+                            />
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="font-medium text-gray-700 dark:text-gray-400">Tahun</span>
+                        <div className="flex w-32">
+                            <Select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}
+                                options={availableYears.reduce((a, v) => ({...a, [v]: v}), {})}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-white/10 rounded-lg w-full mt-6">
+                    <Chart type='donut' height={240} options={{...piechartOptions, theme: { mode: theme }}}
+                        series={Object.keys(filteredData).map((key) => filteredData[key][`${selectedMonth}-${selectedYear}`] ?? 0)}
+                    />
+                </div>
+            </div>
+        </Card>
     )
 }
