@@ -3,21 +3,12 @@ import cors from 'cors';
 import puppeteer from 'puppeteer';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import mongoose from 'mongoose';
 // Import fungsi ekstraksi lokasi
 // Pastikan ini ada di package.json
 // "type": "module",
 
 // Dan pastikan path import relatif sudah benar
 import { processLocationBatch } from './src/services/aiService.js';
-import { LaporanKasusModel } from './src/schemas/laporanSchema.js';
-
-mongoose.connect('mongodb://localhost:27017/awasin')
-    .then(() => {
-        console.log('Connected to awasin database');
-    }).catch((error) => {
-        console.log('Error connecting to database ', error);
-    });
 
 const app = express();
 app.use(cors());
@@ -229,32 +220,6 @@ app.get('/api/scrape/data', (req, res) => {
         data: []
     });
 });
-
-app.get('/api/laporan', async (req, res) => {
-    try {
-        const laporan = await LaporanKasusModel.find({});
-
-        res.status(200).send({ laporan: laporan });
-    } catch (error) {
-        res.status(500).send({message: 'Something went wrong', error: error.message});
-        console.log(error);
-    }
-});
-
-app.post('/api/laporan', async (req, res) => {
-    try {
-        const laporan = new LaporanKasusModel(req.body);
-        let result = await laporan.save();
-
-        if (result) {
-            res.status(200).send({ laporan: result });
-        } else {
-            res.status(400).send({message: 'Laporan sudah pernah dibuat', error: error.message});
-        }
-    } catch (error) {
-        res.status(500).send({message: 'Something went wrong', error: error.message});
-    }
-})
 
 app.listen(3001, () => {
     console.log(`Server berjalan di http://localhost:3001`);

@@ -23,8 +23,6 @@
     "daftar-wilayah-indonesia": "^4.0.3",
     "date-fns": "^4.1.0",
     "express": "^5.1.0",
-    "mongodb": "^6.17.0",
-    "mongoose": "^8.16.1",
     "idn-area-data": "^3.1.2",
     "node-cron": "^4.1.1",
     "notyf": "^3.10.0",
